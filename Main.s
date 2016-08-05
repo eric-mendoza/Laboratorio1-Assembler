@@ -7,15 +7,33 @@
 .global main
 .func main
 main:
-	ldr r0, =mensajeIngreso  @ Mensaje de ingreso
+	ldr r0, =mensajeIngreso  	@ Mensaje de ingreso
 	bl puts
 
 	IngresoSemilla:
-		ldr r0, =formatoD  @ Formato entero
+		ldr r0, =formatoD  		@ Formato entero
 		ldr r1, =semilla
 		bl scanf
-		cmp r0, #0  @ Verificar que se haya ingresado correctamente
+		cmp r0, #0  			@ Verificar que se haya ingresado correctamente
 		beq ErrorIngreso
+
+	ldr r0, =mensajeTamano  	@ Mensaje de tamano
+	bl puts
+
+	IngresoTamano:
+		@bl getchar 			@ Limpiar Buffer
+		ldr r0, =formatoD  		@ Formato entero
+		ldr r1, =tamano
+		bl scanf
+		cmp r0, #0  @ Verificar que se haya ingresado correctamente
+		beq ErrorIngreso2
+
+		ldr r0, =tamano 		@ Verificar que sea tamano dentro de rango
+		ldr r0, [r0]
+		cmp r0, #1
+		blt ErrorIngreso2
+		cmp r0, #1048576
+		bgt ErrorIngreso2
 
 
 	/*Generar los numeros aleatorios*/
@@ -107,6 +125,12 @@ ErrorIngreso:
 	bl getchar  @ Limpiar buffer
 	b IngresoSemilla
 
+ErrorIngreso2:
+	ldr r0, =mensajeError2
+	bl puts
+	bl getchar  @ Limpiar buffer
+	b IngresoTamano
+
 
 @  Redireccion de variables
 addr_valores:
@@ -138,13 +162,17 @@ addr_valores:
 		.asciz "%s"
 
 	mensajeIngreso:	
-		.asciz "Bienvenido! \nIngrese una semmilla para generar la secuencia de numeros aleatorios:"
+		.asciz "Bienvenido! \nIngrese una semilla para generar la secuencia de numeros aleatorios:"
 
 	mensajeSalida:	
 		.asciz "\nSaludos!"
 
 	mensajeError:	
-		.asciz "Usted ha ingresado un valor incorrecto para la semilla. "
+		.asciz "Usted ha ingresado un valor incorrecto. Ingrese un entero valido: "
+
+	mensajeError2:	
+		.asciz "Usted ha ingresado un valor incorrecto. Ingrese un entero dentro del rango [1, 1048576]: "
+
 
 	mensajeMax:	
 		.asciz "\n- El valor maximo es: %f \n"
@@ -154,4 +182,7 @@ addr_valores:
 
 	mensajeAvg:	
 		.asciz "- El valor promedio del vector normalizado es: %f \n\n"
+
+	mensajeTamano:	
+		.asciz "Ingrese el tamano del vector que desea trabajar: "
 

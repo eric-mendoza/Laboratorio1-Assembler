@@ -50,6 +50,7 @@ lfsr:
 @   - r4: Direccion de vector
 @   - r5: Tamano del vector
 @   - r6: Contador
+@   - r9: Copia tamano vector
 @	- s0: Cargar valor
 @   - d5: Para imprimir
 .global printVec
@@ -57,6 +58,7 @@ printVec:
 		mov r7, lr
 		mov r6, #0
 		mov r4, r0
+		mov r9, r1
 		InicioPrint:
 			vldr s0, [r4]  			@ Cargar y correrse
 			add r4, #4
@@ -70,7 +72,7 @@ printVec:
 			pop {r0-r5}
 
 			add r6, r6, #1			@ Aumentar contador
-			cmp r6, r1
+			cmp r6, r9
 			bne InicioPrint
 		mov pc, r7
 
@@ -161,7 +163,7 @@ norm:
 
 			add r6, r6, #8			@ Aumentar contador
 			cmp r6, r1				@ Verificar si se termino
-			bne InicioNorm
+			blt InicioNorm
 
 		/*Retornar a escalares*/
 		vmrs r7, fpscr
@@ -185,7 +187,7 @@ norm:
 max:
 	mov r9, lr
 	mov r5, #0
-	vmov s1, r5  				@ Iniciar s1 en 0
+	vldr s1, [r0]				@ Iniciar s1 con el primer valor
 	InicioComparacion:
 		vldr s0, [r0]			@ Cargar primer valor
 		add r0, #4				@ Correrse a la siguiente posicion
@@ -196,7 +198,7 @@ max:
 
 		add r5, r5, #1 			@ Aumentar contador
 		cmp r5, r1
-		bne InicioComparacion
+		blt InicioComparacion
 
 		vmov r0, s1 			@ Mover maximo a r0
 	mov pc, r9
@@ -214,7 +216,7 @@ max:
 min:
 	mov r9, lr 					@ Guardar link register para volver
 	mov r5, #0
-	vmov s1, r5  				@ Iniciar s1 en 0
+	vldr s1, [r0]				@ Iniciar s1 con el primer valor
 	InicioComparacion2:
 		vldr s0, [r0]			@ Cargar primer valor
 		add r0, #4				@ Correrse a la siguiente posicion
@@ -225,9 +227,9 @@ min:
 
 		add r5, r5, #1 			@ Aumentar contador
 		cmp r5, r1
-		bne InicioComparacion2
+		blt InicioComparacion2
 
-		vmov r0, s1 			@ Mover minimo a r0
+	vmov r0, s1 			@ Mover minimo a r0
 	mov pc, r9 					@ Volver a programa principal
 
 
